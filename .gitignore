@@ -9,6 +9,9 @@ sa-key.json
 *.pem
 .env
 .venv/
+.dvc/site-cache/
 __pycache__/
 *.pyc
+.pytest_cache/
+.tmp/
 .DS_Store
