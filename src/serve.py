@@ -19,19 +19,19 @@ def download_model():
     GOOGLE_APPLICATION_CREDENTIALS de xac thuc (duoc dat trong systemd service).
     """
     # TODO 1: Tao storage.Client()
-    # client = storage.Client()
+    client = storage.Client()
 
     # TODO 2: Lay bucket va blob tuong ung
-    # bucket = client.bucket(GCS_BUCKET)
-    # blob   = bucket.blob(GCS_MODEL_KEY)
+    bucket = client.bucket(GCS_BUCKET)
+    blob   = bucket.blob(GCS_MODEL_KEY)
 
     # TODO 3: Tai file model xuong may
-    # blob.download_to_filename(MODEL_PATH)
+    blob.download_to_filename(MODEL_PATH)
 
     # TODO 4: In thong bao thanh cong
-    # print("Model da duoc tai xuong tu GCS.")
+    print("Model da duoc tai xuong tu GCS.")
 
-    pass  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
+    # pass  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
 
 
 download_model()
@@ -51,7 +51,7 @@ def health():
     Tra ve: {"status": "ok"}
     """
     # TODO 5: Tra ve dict {"status": "ok"}
-    pass  # xoa dong nay sau khi hoan thanh
+    return {"status": "ok"}
 
 
 @app.post("/predict")
@@ -69,15 +69,23 @@ def predict(req: PredictRequest):
     """
     # TODO 6: Kiem tra so luong dac trung.
     # Neu len(req.features) != 12, raise HTTPException(status_code=400, ...)
+    try:
+        if len(req.features) != 12:
+            raise HTTPException(status_code=400, detail="Invalid number of features. Expected 12 features.")
+        
 
     # TODO 7: Goi model.predict([req.features]) de lay ket qua du doan.
-    # pred = model.predict(...)
+        else:
+            pred = model.predict([req.features])[0]
+            label_map = {0: "thap", 1: "trung_binh", 2: "cao"}
+            
 
     # TODO 8: Tra ve dict chua "prediction" (int) va "label" (string).
     # Nhan tuong ung: 0 -> "thap", 1 -> "trung_binh", 2 -> "cao"
-    # return {"prediction": ..., "label": ...}
-
-    pass  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
+            label = label_map.get(pred, "unknown")
+            return {"prediction": int(pred), "label": label}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
 
 
 if __name__ == "__main__":
